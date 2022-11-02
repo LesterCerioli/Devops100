@@ -31,11 +31,13 @@ public class GetLDAPEntries extends AdminDocumentHandler {
     public Element handle(Element request, Map<String, Object> context) throws ServiceException {
 
         ZimbraSoapContext lc = getZimbraSoapContext(context);
-        OperationContext octxt = getOperationContext(lc, context);
+        OperationContext operationContext = getOperationContext(lc, context);
+
         boolean allowAccess = LC.enable_delegated_admin_ldap_access.booleanValue();
-        if(octxt.getAuthToken().isDelegatedAdmin() && !allowAccess) {
-            throw ServiceException.PERM_DENIED("Delegated admin not can not access LDAP");
+        if(operationContext.getAuthToken().isDelegatedAdmin() && !allowAccess) {
+            throw ServiceException.PERM_DENIED("Delegated admin can not access LDAP");
         }
+
         Element b = request.getElement(LDAPUtilsConstants.E_LDAPSEARCHBASE);
         String ldapSearchBase;
         if(isDomainAdminOnly(lc)) {

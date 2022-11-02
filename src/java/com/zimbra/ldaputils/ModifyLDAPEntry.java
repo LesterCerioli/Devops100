@@ -27,12 +27,14 @@ public class ModifyLDAPEntry extends AdminDocumentHandler {
             throws ServiceException {
 
         ZimbraSoapContext lc = getZimbraSoapContext(context);
-        OperationContext octxt = getOperationContext(lc, context);
-        AuthToken authToken = octxt.getAuthToken();
+        OperationContext operationContext = getOperationContext(lc, context);
+        AuthToken authToken = operationContext.getAuthToken();
+
         boolean allowAccess = LC.enable_delegated_admin_ldap_access.booleanValue();
-        if(octxt.getAuthToken().isDelegatedAdmin() && !allowAccess) {
-            throw ServiceException.PERM_DENIED("Delegated admin not can not modify LDAP");
+        if(operationContext.getAuthToken().isDelegatedAdmin() && !allowAccess) {
+            throw ServiceException.PERM_DENIED("Delegated admin can not modify LDAP");
         }
+
         String dn = request.getAttribute(LDAPUtilsConstants.E_DN);
         if(dn==null)
             throw ServiceException.INVALID_REQUEST("Missing request parameter: "+LDAPUtilsConstants.E_DN, null);

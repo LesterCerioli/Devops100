@@ -5,6 +5,9 @@
 
 package com.zimbra.ldaputils;
 
+import com.zimbra.common.localconfig.LC;
+import com.zimbra.cs.account.AuthToken;
+import com.zimbra.cs.mailbox.OperationContext;
 import java.util.Map;
 
 import com.zimbra.common.service.ServiceException;
@@ -25,6 +28,12 @@ public class CreateLDAPEntry extends AdminDocumentHandler {
     throws ServiceException {
 
         ZimbraSoapContext lc = getZimbraSoapContext(context);
+        OperationContext operationContext = getOperationContext(lc, context);
+
+        boolean allowAccess = LC.enable_delegated_admin_ldap_access.booleanValue();
+        if(operationContext.getAuthToken().isDelegatedAdmin() && !allowAccess) {
+            throw ServiceException.PERM_DENIED("Delegated admin can not modify LDAP");
+        }
 
         String dn = request.getAttribute(LDAPUtilsConstants.E_DN);
         Map<String, Object> attrs = AdminService.getAttrs(request, true);
